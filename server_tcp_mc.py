@@ -2,18 +2,6 @@ import socket, os, pickle
 from _thread import *
 from gomoku import *
 
-tabuleiro = [9, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-             1, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-             2, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-             3, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-             4, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-             5, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-             6, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-             7, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-             8, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-             9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-             ]
-
 
 host = 'localhost'
 porta = 8000
@@ -31,28 +19,56 @@ print('Servidor ativo')
 servidor.listen(5)
 
 
-# def threads_cliente(conexao):
-#     print(conexao[0])
-#     conexao.sendall(str.encode('Server is working:'))
-#     while True:
-#         conexao.sendall(str.encode('Server is working:'))
-#         data = conexao.recv(2048)
-#         response = pickle.loads(data)
-#         if not data:
-#             break
-# 		#conexao.sendall(response)
-#     conexao.close()
+def threads_cliente(conexao):
+	for i in enderecos:
+		print(i)
+	conexao.sendall(str.encode('Server is working:'))
+	while True:
+		conexao.sendall(str.encode('Server is working:'))
+		data = conexao.recv(2048)
+		response = pickle.loads(data)
+		if not data:
+			break
+		#conexao.sendall(response)
+	conexao.close()
 
 enderecos = []
 while True:
-    jogador1, endereco = servidor.accept()
-    print('Conectado a:' + endereco[0] + ':' + str(endereco[1]))
-    enderecos.append(endereco[0] + ':' + str(endereco[1]))
-    jogador2, endereco = servidor.accept()
-    print('Conectado a:' + endereco[0] + ':' + str(endereco[1]))
-    enderecos.append(endereco[0] + ':' + str(endereco[1]))
-    jogador1.sendall(pickle.dumps(tabuleiro))
-    jogador2.sendall(b'teste2')
-
+	cliente, endereco = servidor.accept()
+	print('Connected to:' + endereco[0] + ':' + str(endereco[1]))
+	enderecos.append(endereco[0] + ':' + str(endereco[1]))
+	start_new_thread(threads_cliente, (cliente,))
+	contador_thread += 1
+	print('Threaded number:' + str(contador_thread))
 
 servidor.close()
+
+def get_jogada(ln: int, cl: int, jogador: int, tab: List) -> tabuleiro:
+    escolha_jogador = 0
+    print(f"\nJogador {jogador} insira sua escolha \n")
+
+    while escolha_jogador < 1 or escolha_jogador > LINHAS:
+        try:
+            escolha_jogador = int(
+                input(f"Por favor escolha uma linha entre 1 e {LINHAS} > "))
+        except ValueError:
+            print('Por favor insira um valor válido')
+        ln = escolha_jogador
+
+    escolha_jogador = 0
+    while escolha_jogador < 1 or escolha_jogador > COLUNAS:
+        try:
+            escolha_jogador = int(
+                input(f"Por favor escolha uma coluna entre 1 e {LINHAS} > "))
+        except ValueError:
+            print('Por favor insira um valor válido')
+        cl = escolha_jogador
+
+    posicao = ((int(ln)*largura_tabuleiro))+(int(cl))
+
+    if jogador == 1:
+        tab[posicao] = 1
+    else:
+        tab[posicao] = 2
+
+    return tab

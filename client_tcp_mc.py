@@ -3,6 +3,35 @@ import pickle
 from gomoku import *
 
 
+def get_jogada(ln: int, cl: int, jogador: int, tab: List) -> tabuleiro:
+    escolha_jogador = 0
+    print(f"\nJogador {jogador} insira sua escolha \n")
+
+    while escolha_jogador < 1 or escolha_jogador > LINHAS:
+        try:
+            escolha_jogador = int(
+                input(f"Por favor escolha uma linha entre 1 e {LINHAS} > "))
+        except ValueError:
+            print('Por favor insira um valor válido')
+        ln = escolha_jogador
+
+    escolha_jogador = 0
+    while escolha_jogador < 1 or escolha_jogador > COLUNAS:
+        try:
+            escolha_jogador = int(
+                input(f"Por favor escolha uma coluna entre 1 e {LINHAS} > "))
+        except ValueError:
+            print('Por favor insira um valor válido')
+        cl = escolha_jogador
+
+    posicao = ((int(ln)*largura_tabuleiro))+(int(cl))
+
+    if jogador == 1:
+        tab[posicao] = 1
+    else:
+        tab[posicao] = 2
+
+    return tab
 
 
 LINHA = 0
@@ -34,14 +63,14 @@ while True:
 	tab = tabuleiro
 	#mensagem = cliente.recv(1024)
 	#print(mensagem.decode(utf-8))
-	#imprime_tabuleiro(tabuleiro)
-	#jogada = get_jogada(ln, cl, jogador, tab)
-	#print(tabuleiro)
-	#cliente.sendall(pickle.dumps(jogada))
-	#valida()
-	#imprime_tabuleiro(jogada)
+	imprime_tabuleiro(tabuleiro)
+	jogada = get_jogada(ln, cl, jogador, tab)
+	print(tabuleiro)
+	cliente.sendall(pickle.dumps(jogada))
+	valida()
+	imprime_tabuleiro(jogada)
 	res = cliente.recv(1024)
-	print(imprime_tabuleiro(res))
+	print(res.decode('utf-8'))
 	#jogada = get_jogada(LINHA, COLUNA, JOGADOR, tabuleiro)
 	#cliente.send(pickle.dumps(jogada))
 	#resposta = cliente.recv(1024)
